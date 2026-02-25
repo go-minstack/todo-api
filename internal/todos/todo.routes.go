@@ -1,0 +1,12 @@
+package todos
+
+import "github.com/gin-gonic/gin"
+
+func RegisterRoutes(r *gin.Engine, c *TodoController) {
+	g := r.Group("/api/todos")
+	g.GET("", c.list)
+	g.POST("", c.create)
+	g.GET("/:id", c.get)
+	g.PATCH("/:id", c.update)
+	g.DELETE("/:id", c.delete)
+}
