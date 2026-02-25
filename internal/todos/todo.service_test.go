@@ -71,6 +71,29 @@ func (m *mockTodoRepo) DeleteByID(id uint) error {
 	return errors.New("record not found")
 }
 
+// failingMockRepo always returns errors — used to cover service error branches.
+type failingMockRepo struct{}
+
+func (m *failingMockRepo) FindAll(opts ...repository.QueryOption) ([]todo_entities.Todo, error) {
+	return nil, errors.New("db error")
+}
+
+func (m *failingMockRepo) FindByID(id uint) (*todo_entities.Todo, error) {
+	return nil, errors.New("db error")
+}
+
+func (m *failingMockRepo) Create(entity *todo_entities.Todo) error {
+	return errors.New("db error")
+}
+
+func (m *failingMockRepo) UpdatesByID(id uint, columns map[string]interface{}) error {
+	return errors.New("db error")
+}
+
+func (m *failingMockRepo) DeleteByID(id uint) error {
+	return errors.New("db error")
+}
+
 func TestTodoService_List(t *testing.T) {
 	repo := newMockTodoRepo()
 	svc := &TodoService{todos: repo}
@@ -168,4 +191,52 @@ func TestTodoService_Delete(t *testing.T) {
 		err := svc.Delete(999)
 		assert.Error(t, err)
 	})
+}
+
+func TestTodoService_DBErrors(t *testing.T) {
+	svc := &TodoService{todos: &failingMockRepo{}}
+
+	t.Run("List error", func(t *testing.T) {
+		_, err := svc.List()
+		assert.Error(t, err)
+	})
+
+	t.Run("Create error", func(t *testing.T) {
+		_, err := svc.Create(dto.CreateTodoDto{Title: "Buy milk"})
+		assert.Error(t, err)
+	})
+
+	t.Run("Get error", func(t *testing.T) {
+		_, err := svc.Get(1)
+		assert.Error(t, err)
+	})
+
+	t.Run("Update error", func(t *testing.T) {
+		_, err := svc.Update(1, dto.UpdateTodoDto{Title: "Nope"})
+		assert.Error(t, err)
+	})
+
+	t.Run("Delete error", func(t *testing.T) {
+		err := svc.Delete(1)
+		assert.Error(t, err)
+	})
+}
+
+// updateFailMockRepo finds items fine but fails on UpdatesByID — covers the
+// error branch after FindByID succeeds in Update().
+type updateFailMockRepo struct {
+	mockTodoRepo
+}
+
+func (m *updateFailMockRepo) UpdatesByID(id uint, columns map[string]interface{}) error {
+	return errors.New("db error")
+}
+
+func TestTodoService_UpdateDBError(t *testing.T) {
+	repo := &updateFailMockRepo{mockTodoRepo: mockTodoRepo{nextID: 1}}
+	repo.Create(&todo_entities.Todo{Title: "Buy milk"})
+	svc := &TodoService{todos: repo}
+
+	_, err := svc.Update(1, dto.UpdateTodoDto{Title: "Nope"})
+	assert.Error(t, err)
 }
