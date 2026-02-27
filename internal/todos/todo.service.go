@@ -23,19 +23,19 @@ func NewTodoService(todos *todo_repos.TodoRepository) *TodoService {
 	return &TodoService{todos: todos}
 }
 
-func (s *TodoService) List() ([]dto.TodoDto, error) {
+func (s *TodoService) List() ([]todo_dto.TodoDto, error) {
 	todos, err := s.todos.FindAll()
 	if err != nil {
 		return nil, err
 	}
-	dtos := make([]dto.TodoDto, len(todos))
+	dtos := make([]todo_dto.TodoDto, len(todos))
 	for i, t := range todos {
-		dtos[i] = dto.NewTodoDto(&t)
+		dtos[i] = todo_dto.NewTodoDto(&t)
 	}
 	return dtos, nil
 }
 
-func (s *TodoService) Create(input dto.CreateTodoDto) (*dto.TodoDto, error) {
+func (s *TodoService) Create(input todo_dto.CreateTodoDto) (*todo_dto.TodoDto, error) {
 	todo := &todo_entities.Todo{
 		Title:       input.Title,
 		Description: input.Description,
@@ -43,20 +43,20 @@ func (s *TodoService) Create(input dto.CreateTodoDto) (*dto.TodoDto, error) {
 	if err := s.todos.Create(todo); err != nil {
 		return nil, err
 	}
-	result := dto.NewTodoDto(todo)
+	result := todo_dto.NewTodoDto(todo)
 	return &result, nil
 }
 
-func (s *TodoService) Get(id uint) (*dto.TodoDto, error) {
+func (s *TodoService) Get(id uint) (*todo_dto.TodoDto, error) {
 	todo, err := s.todos.FindByID(id)
 	if err != nil {
 		return nil, err
 	}
-	result := dto.NewTodoDto(todo)
+	result := todo_dto.NewTodoDto(todo)
 	return &result, nil
 }
 
-func (s *TodoService) Update(id uint, input dto.UpdateTodoDto) (*dto.TodoDto, error) {
+func (s *TodoService) Update(id uint, input todo_dto.UpdateTodoDto) (*todo_dto.TodoDto, error) {
 	if _, err := s.todos.FindByID(id); err != nil {
 		return nil, err
 	}

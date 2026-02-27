@@ -118,7 +118,7 @@ func TestTodoService_Create(t *testing.T) {
 	repo := newMockTodoRepo()
 	svc := &TodoService{todos: repo}
 
-	todo, err := svc.Create(dto.CreateTodoDto{
+	todo, err := svc.Create(todo_dto.CreateTodoDto{
 		Title:       "Buy milk",
 		Description: "From the store",
 	})
@@ -157,20 +157,20 @@ func TestTodoService_Update(t *testing.T) {
 	repo.Create(&todo_entities.Todo{Title: "Buy milk", Description: "From the store"})
 
 	t.Run("update title", func(t *testing.T) {
-		todo, err := svc.Update(1, dto.UpdateTodoDto{Title: "Buy bread"})
+		todo, err := svc.Update(1, todo_dto.UpdateTodoDto{Title: "Buy bread"})
 		require.NoError(t, err)
 		assert.Equal(t, "Buy bread", todo.Title)
 	})
 
 	t.Run("mark done", func(t *testing.T) {
 		done := true
-		todo, err := svc.Update(1, dto.UpdateTodoDto{Done: &done})
+		todo, err := svc.Update(1, todo_dto.UpdateTodoDto{Done: &done})
 		require.NoError(t, err)
 		assert.True(t, todo.Done)
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		_, err := svc.Update(999, dto.UpdateTodoDto{Title: "Nope"})
+		_, err := svc.Update(999, todo_dto.UpdateTodoDto{Title: "Nope"})
 		assert.Error(t, err)
 	})
 }
@@ -202,7 +202,7 @@ func TestTodoService_DBErrors(t *testing.T) {
 	})
 
 	t.Run("Create error", func(t *testing.T) {
-		_, err := svc.Create(dto.CreateTodoDto{Title: "Buy milk"})
+		_, err := svc.Create(todo_dto.CreateTodoDto{Title: "Buy milk"})
 		assert.Error(t, err)
 	})
 
@@ -212,7 +212,7 @@ func TestTodoService_DBErrors(t *testing.T) {
 	})
 
 	t.Run("Update error", func(t *testing.T) {
-		_, err := svc.Update(1, dto.UpdateTodoDto{Title: "Nope"})
+		_, err := svc.Update(1, todo_dto.UpdateTodoDto{Title: "Nope"})
 		assert.Error(t, err)
 	})
 
@@ -237,6 +237,6 @@ func TestTodoService_UpdateDBError(t *testing.T) {
 	repo.Create(&todo_entities.Todo{Title: "Buy milk"})
 	svc := &TodoService{todos: repo}
 
-	_, err := svc.Update(1, dto.UpdateTodoDto{Title: "Nope"})
+	_, err := svc.Update(1, todo_dto.UpdateTodoDto{Title: "Nope"})
 	assert.Error(t, err)
 }

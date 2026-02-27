@@ -1,4 +1,4 @@
-package dto
+package todo_dto
 
 import todo_entities "todo-api/internal/todos/entities"
 

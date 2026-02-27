@@ -28,7 +28,7 @@ func (c *TodoController) list(ctx *gin.Context) {
 }
 
 func (c *TodoController) create(ctx *gin.Context) {
-	var input dto.CreateTodoDto
+	var input todo_dto.CreateTodoDto
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, web.NewErrorDto(err))
 		return
@@ -61,7 +61,7 @@ func (c *TodoController) update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, web.NewErrorDto(err))
 		return
 	}
-	var input dto.UpdateTodoDto
+	var input todo_dto.UpdateTodoDto
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, web.NewErrorDto(err))
 		return
