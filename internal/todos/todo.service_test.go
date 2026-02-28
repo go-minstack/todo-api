@@ -2,6 +2,8 @@ package todos
 
 import (
 	"errors"
+	"io"
+	"log/slog"
 	"testing"
 
 	"github.com/go-minstack/repository"
@@ -10,6 +12,14 @@ import (
 	"todo-api/internal/todos/dto"
 	todo_entities "todo-api/internal/todos/entities"
 )
+
+// newTestSvc creates a TodoService with a discard logger suitable for unit tests.
+func newTestSvc(repo todoRepository) *TodoService {
+	return &TodoService{
+		todos: repo,
+		log:   slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+}
 
 // mockTodoRepo is an in-memory implementation of todoRepository for unit tests.
 type mockTodoRepo struct {
@@ -96,7 +106,7 @@ func (m *failingMockRepo) DeleteByID(id uint) error {
 
 func TestTodoService_List(t *testing.T) {
 	repo := newMockTodoRepo()
-	svc := &TodoService{todos: repo}
+	svc := newTestSvc(repo)
 
 	// empty list
 	todos, err := svc.List()
@@ -116,7 +126,7 @@ func TestTodoService_List(t *testing.T) {
 
 func TestTodoService_Create(t *testing.T) {
 	repo := newMockTodoRepo()
-	svc := &TodoService{todos: repo}
+	svc := newTestSvc(repo)
 
 	todo, err := svc.Create(todo_dto.CreateTodoDto{
 		Title:       "Buy milk",
@@ -134,7 +144,7 @@ func TestTodoService_Create(t *testing.T) {
 
 func TestTodoService_Get(t *testing.T) {
 	repo := newMockTodoRepo()
-	svc := &TodoService{todos: repo}
+	svc := newTestSvc(repo)
 
 	repo.Create(&todo_entities.Todo{Title: "Buy milk"})
 
@@ -152,7 +162,7 @@ func TestTodoService_Get(t *testing.T) {
 
 func TestTodoService_Update(t *testing.T) {
 	repo := newMockTodoRepo()
-	svc := &TodoService{todos: repo}
+	svc := newTestSvc(repo)
 
 	repo.Create(&todo_entities.Todo{Title: "Buy milk", Description: "From the store"})
 
@@ -177,7 +187,7 @@ func TestTodoService_Update(t *testing.T) {
 
 func TestTodoService_Delete(t *testing.T) {
 	repo := newMockTodoRepo()
-	svc := &TodoService{todos: repo}
+	svc := newTestSvc(repo)
 
 	repo.Create(&todo_entities.Todo{Title: "Buy milk"})
 
@@ -194,7 +204,7 @@ func TestTodoService_Delete(t *testing.T) {
 }
 
 func TestTodoService_DBErrors(t *testing.T) {
-	svc := &TodoService{todos: &failingMockRepo{}}
+	svc := newTestSvc(&failingMockRepo{})
 
 	t.Run("List error", func(t *testing.T) {
 		_, err := svc.List()
@@ -235,7 +245,7 @@ func (m *updateFailMockRepo) UpdatesByID(id uint, columns map[string]interface{}
 func TestTodoService_UpdateDBError(t *testing.T) {
 	repo := &updateFailMockRepo{mockTodoRepo: mockTodoRepo{nextID: 1}}
 	repo.Create(&todo_entities.Todo{Title: "Buy milk"})
-	svc := &TodoService{todos: repo}
+	svc := newTestSvc(repo)
 
 	_, err := svc.Update(1, todo_dto.UpdateTodoDto{Title: "Nope"})
 	assert.Error(t, err)
