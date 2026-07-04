@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-minstack/web"
+	"github.com/go-minstack/go-minstack/web"
 	"todo-api/internal/todos/dto"
 )
 

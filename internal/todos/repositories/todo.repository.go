@@ -1,9 +1,9 @@
 package todo_repositories
 
 import (
-	"github.com/go-minstack/repository"
-	todo_entities "todo-api/internal/todos/entities"
+	"github.com/go-minstack/go-minstack/repository"
 	"gorm.io/gorm"
+	todo_entities "todo-api/internal/todos/entities"
 )
 
 type TodoRepository struct {

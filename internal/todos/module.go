@@ -1,7 +1,7 @@
 package todos
 
 import (
-	"github.com/go-minstack/core"
+	"github.com/go-minstack/go-minstack/core"
 	todo_repos "todo-api/internal/todos/repositories"
 )
 

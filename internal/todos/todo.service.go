@@ -3,7 +3,7 @@ package todos
 import (
 	"log/slog"
 
-	"github.com/go-minstack/repository"
+	"github.com/go-minstack/go-minstack/repository"
 	"todo-api/internal/todos/dto"
 	todo_entities "todo-api/internal/todos/entities"
 	todo_repos "todo-api/internal/todos/repositories"
